@@ -75,32 +75,48 @@ public/       static assets
 
 Next.js 16 · React 19 · Three.js · MediaPipe Tasks Vision · TypeScript
 
-## Personal iPhone assistant
+## Personal iPhone assistant — Live conversation
 
-This fork adds a server-side Gemini text connection, optional browser speech recognition,
-and device speech playback. The original orb follows listening, thinking and speaking states.
-It does not control devices or connect to email/WhatsApp.
+This fork adds Gemini Live audio-to-audio conversation. Sign in once, tap Start conversation,
+and speak normally. Google detects the end of your turn and responds aloud automatically.
+There are no per-turn Talk, Send or Read answer buttons. Native audio uses the Puck voice;
+the browser's speech-synthesis voice is not used. An optional Type instead panel remains.
 
-Set these **server-only** environment variables in Vercel Production, then redeploy:
+### Vercel settings
 
-- `GEMINI_API_KEY`: your private Google AI Studio API key.
-- `RAONE_ACCESS_CODE`: a long, unique private passphrase. Enter this passphrase in the app;
-  never enter your Gemini key in the app. The server refuses requests until both variables exist.
-- `GEMINI_MODEL` (optional): an available Gemini text model. Default: `gemini-3.1-flash-lite`.
-  Check model availability and free quota in your own AI Studio project.
+Keep these server-only Production environment variables, then redeploy:
 
-Open the HTTPS deployment in iPhone Safari. Enter your access code, tap Talk, allow microphone
-access, speak, review the transcript, and Send. Tap Read answer for spoken playback. Browser
-speech recognition depends on browser/device support and permissions; typed input remains
-available. Voice playback uses your device's voices, not Gemini generated audio. Keep the
-page open during a conversation. This is not an always-listening background assistant.
+- `GEMINI_API_KEY`: your Google AI Studio key.
+- `RAONE_ACCESS_CODE`: your existing long private passphrase.
+- `GEMINI_LIVE_MODEL` (optional): defaults to `gemini-3.8-live`. This must be a Live audio model
+  available to your Google project, independent of your text model.
+- `GEMINI_MODEL` (optional): text-only fallback, defaults to `gemini-3.1-flash-lite`.
 
-Conversation history and the access code stay in page memory and are cleared on reload.
-Questions and recent conversation turns are sent to Google Gemini; your browser may send
-speech to its own recognition service. Treat the access code like a password; do not publish it.
-API errors expose friendly setup/quota messages instead of raw provider responses.
+The app does not enable billing or change Google account settings. Live access and free quota
+must be checked in your own AI Studio project. Errors do not silently switch to paid providers.
 
-Validation: TypeScript, ESLint and production build, plus mocked route checks for missing
-configuration, incorrect access code, cross-origin requests, invalid payloads, valid answers
-and quota errors. Live Gemini responses and iPhone microphone/playback require testing with
-your deployed environment and device.
+### iPhone usage and privacy
+
+Use normal Safari for persistent sign-in. Sign-in uses a signed HttpOnly, SameSite=Strict cookie,
+valid for 30 days; the raw passphrase is not stored in localStorage. Private browsing or clearing
+site data may erase the cookie. Sign out clears it. Changing RAONE_ACCESS_CODE invalidates all
+existing cookies after redeployment.
+
+One Start conversation tap unlocks audio playback and asks for microphone permission. Audio is
+captured via AudioWorklet, resampled to mono 16-bit PCM at 16 kHz, and streamed directly to
+Google using a single-use, short-lived token issued by the server. The main API key never leaves
+the server. Google returns PCM voice audio, played automatically in a scheduled audio queue.
+Voice activity detection and interruption handling remove the per-turn button sequence.
+
+Keep the page open during conversations. Switching apps or hiding the page ends the session
+and releases the microphone. Mute pauses microphone transmission; End conversation stops
+microphone tracks, queued playback and the Google connection. Connections end after 25 minutes
+or if Google terminates them; reconnect explicitly with Start conversation. No automatic retry loop.
+
+Only the current page's transcript is shown. There is no persistent conversation memory, device
+control, email, WhatsApp or calendar integration. Audio and transcripts are processed by Google
+under the policies for your API project. The optional typed fallback uses the text endpoint and
+returns text only when no live voice session is active.
+
+Live access and iPhone microphone/speaker behavior require testing on the actual device. Local
+checks cover build, lint, cookie authentication, worklet resampling and simulated voice events.

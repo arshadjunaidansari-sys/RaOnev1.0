@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { hasSession, sameOrigin, verifyCode } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -9,11 +9,8 @@ export async function POST(request: NextRequest) {
   const key = process.env.GEMINI_API_KEY;
   const accessCode = process.env.RAONE_ACCESS_CODE;
   if (!key || !accessCode) return respond({ error: "Setup incomplete: add GEMINI_API_KEY and RAONE_ACCESS_CODE in Vercel, then redeploy." }, 503);
-  if (request.headers.get("origin") !== new URL(request.url).origin) return respond({ error: "Request not allowed." }, 403);
-  const supplied = request.headers.get("x-raone-access-code") || "";
-  const actualBuffer = Buffer.from(accessCode);
-  const suppliedBuffer = Buffer.from(supplied);
-  if (actualBuffer.length !== suppliedBuffer.length || !timingSafeEqual(actualBuffer, suppliedBuffer)) return respond({ error: "Enter the correct access code." }, 401);
+  if (!sameOrigin(request)) return respond({ error: "Request not allowed." }, 403);
+  if (!hasSession(request) && !verifyCode(request.headers.get("x-raone-access-code") || "")) return respond({ error: "Please sign in again." }, 401);
   if (Number(request.headers.get("content-length") || 0) > 32000) return respond({ error: "Message is too long." }, 413);
   let body: unknown;
   try {

@@ -37,3 +37,12 @@ body {
 .assistant-error { color: #ffc2c2; background: #3a1c27; padding: 10px; border-radius: 10px; }
 @media (max-width: 480px) { .assistant { padding: 14px; max-height: 76dvh; } .assistant-heading { align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+.assistant-live { max-height: 65dvh; }
+.assistant-live .assistant-log:empty { display: none; }
+.voice-intro { font-size: 18px; margin: 4px 0 20px; color: #d6e8fb; }
+.voice-start { width: 100%; min-height: 56px !important; }
+.voice-controls { margin-bottom: 12px; }
+.assistant-end { border-color: #e4a3a3 !important; background: #47232b !important; }
+.assistant-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; color: #b6c7d8; font-size: 13px; }
+.assistant-footer button { font-size: 14px; background: transparent; }
+@media (max-height: 500px) { .assistant-live { max-height: 80dvh; } }
