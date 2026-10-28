@@ -44,13 +44,13 @@ export default function RaoneOrb() {
   // tracking doesn't need it visible, it's a debug aid. Press C for it.
   const [showCameraPreview, setShowCameraPreview] = useState(false);
   const [fps, setFps] = useState(0);
-  const [panelVisible, setPanelVisible] = useState(true);
+  const [panelVisible, setPanelVisible] = useState(false);
 
   // Intro video: plays on load over the orb, fades out on first interaction
   // so the scene underneath is revealed. introFading drives the CSS
   // transition; introVisible unmounts it afterwards so it stops costing
   // compositing work once invisible.
-  const [introVisible, setIntroVisible] = useState(true);
+  const [introVisible, setIntroVisible] = useState(false);
   const [introFading, setIntroFading] = useState(false);
   const INTRO_FADE_MS = 2800;
 
@@ -88,6 +88,18 @@ export default function RaoneOrb() {
       scene.dispose();
       sceneRef.current = null;
     };
+  }, []);
+
+  // The assistant drives the visual state without exposing any API keys.
+  useEffect(() => {
+    const update = (event: Event) => {
+      const next = (event as CustomEvent<OrbState>).detail;
+      if (!STATES.includes(next)) return;
+      setState(next);
+      sceneRef.current?.setState(next);
+    };
+    window.addEventListener("raone-state", update);
+    return () => window.removeEventListener("raone-state", update);
   }, []);
 
   // mouse / touch drag + scroll zoom
@@ -168,6 +180,8 @@ export default function RaoneOrb() {
   // keyboard: G gestures, C camera self-view, D panel, R reset, +/- zoom
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("input, textarea, select, [contenteditable=true]")) return;
       if (e.key === "g" || e.key === "G") void toggleGestures();
       else if (e.key === "c" || e.key === "C") setShowCameraPreview((p) => !p);
       else if (e.key === "d" || e.key === "D") setPanelVisible((p) => !p);
@@ -235,7 +249,7 @@ export default function RaoneOrb() {
       <div
         style={{
           position: "absolute",
-          top: 16,
+          top: "max(16px, env(safe-area-inset-top))",
           left: 16,
           zIndex: 2,
           display: "flex",
@@ -282,7 +296,7 @@ export default function RaoneOrb() {
         </div>
       )}
 
-      {/* In the full system these states are driven by a live voice
+      {false && <> {/* In the full system these states are driven by a live voice
           session. Here they're switchable so the visuals can be seen
           standalone. */}
       <div
@@ -304,7 +318,7 @@ export default function RaoneOrb() {
             {s}
           </button>
         ))}
-      </div>
+      </div></>}
     </div>
   );
 }

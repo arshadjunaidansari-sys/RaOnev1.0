@@ -12,3 +12,28 @@ body {
   font-family: "Geist Mono", "SFMono-Regular", Menlo, Consolas, monospace;
   overflow: hidden;
 }
+
+.assistant { position: fixed; z-index: 5; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(620px, calc(100% - 24px)); max-height: 72dvh; overflow-y: auto; border: 1px solid #365775; border-radius: 20px; background: rgba(7, 16, 28, .96); color: #e4effa; padding: 20px; font-family: system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+.assistant-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.assistant-heading strong { letter-spacing: .16em; }
+.assistant-heading span { color: #b7d4f0; font-size: 14px; }
+.assistant label { display: block; margin: 8px 0 6px; }
+.assistant input, .assistant textarea, .assistant select { display: block; width: 100%; font: inherit; color: #f0f6ff; background: #0d2034; border: 1px solid #57738e; border-radius: 10px; padding: 10px 12px; min-height: 44px; }
+.assistant textarea { resize: vertical; max-height: 140px; }
+.assistant button { min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 1px solid #708ba6; background: #173149; color: #f0f6ff; font: inherit; cursor: pointer; touch-action: manipulation; }
+.assistant button:active { opacity: .75; }
+.assistant button:disabled { opacity: .5; cursor: default; }
+.assistant .assistant-primary { background: #b5dfff; border-color: #b5dfff; color: #071523; font-weight: 650; }
+.assistant :focus-visible { outline: 3px solid #8bd2ff; outline-offset: 3px; }
+.assistant-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.assistant-log { max-height: 22dvh; overflow-y: auto; overflow-wrap: anywhere; margin: 12px 0; }
+.assistant-message { padding: 8px 0; border-bottom: 1px solid #2e4255; }
+.assistant-message strong { color: #b5dfff; font-size: 14px; }
+.assistant-message p { margin: 4px 0 8px; white-space: pre-wrap; }
+.assistant-message.user { color: #bbcada; }
+.assistant-empty, .assistant-note, .assistant-settings p { color: #b6c7d8; }
+.assistant-note, .assistant-settings p { font-size: 13px; margin-bottom: 0; }
+.assistant-settings summary { min-height: 44px; cursor: pointer; padding: 8px 0; }
+.assistant-error { color: #ffc2c2; background: #3a1c27; padding: 10px; border-radius: 10px; }
+@media (max-width: 480px) { .assistant { padding: 14px; max-height: 76dvh; } .assistant-heading { align-items: flex-start; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
