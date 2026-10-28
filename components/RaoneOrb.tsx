@@ -74,7 +74,14 @@ export default function RaoneOrb() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const scene = new OrbScene(canvas);
+    let scene: OrbScene;
+    try {
+      scene = new OrbScene(canvas);
+    } catch {
+      // A missing WebGL context must not take down the voice assistant.
+      console.warn("Orb graphics are unavailable; voice controls remain usable.");
+      return;
+    }
     sceneRef.current = scene;
     scene.setState("IDLE");
     scene.start();
